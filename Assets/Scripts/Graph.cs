@@ -6,20 +6,29 @@ public class Graph : MonoBehaviour
 
     [Range(10, 100)] public int resolution = 10;
 
+    public FunctionName functionName;
+
     private Transform[] points;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
-        points = new Transform[resolution];
+        points = new Transform[resolution * resolution];
         var position = Vector3.zero;
         var step = 2f / resolution;
         var scale = Vector3.one * step;
-        for (var i = 0; i < resolution; i++)
+        for (int i = 0, x = 0, z = 0; i < points.Length; x++, i++)
         {
+            if (x == resolution)
+            {
+                x = 0;
+                z++;
+            }
+
             var point = Instantiate(PointPrefab, transform);
-            position.x = (i + 0.5f) * step - 1.0f;
-            position.y = position.x * position.x * position.x;
+            position.x = (x + 0.5f) * step - 1.0f;
+            position.z = (z + 0.5f) * step - 1.0f;
+
             point.localPosition = position;
             point.localScale = scale;
             points[i] = point;
@@ -29,14 +38,17 @@ public class Graph : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        for (var i = 0; i < points.Length; i++)
+        foreach (var point in points)
         {
-            var point = points[i];
-
             var position = point.localPosition;
-            position.y = Mathf.Sin(Mathf.PI * (position.x + Time.time));
+            position.y = CalculateWave(functionName, position.x, position.z, Time.time);
 
             point.localPosition = position;
         }
+    }
+
+    private float CalculateWave(FunctionName functionName, float x, float z, float t)
+    {
+        return FunctionLibrary.GetFunction(functionName)(x, z, t);
     }
 }
