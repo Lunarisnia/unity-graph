@@ -6,9 +6,12 @@ public class Graph : MonoBehaviour
 
     [Range(10, 100)] public int resolution = 10;
 
+    private Transform[] points;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
     {
+        points = new Transform[resolution];
         var position = Vector3.zero;
         var step = 2f / resolution;
         var scale = Vector3.one * step;
@@ -19,11 +22,21 @@ public class Graph : MonoBehaviour
             position.y = position.x * position.x * position.x;
             point.localPosition = position;
             point.localScale = scale;
+            points[i] = point;
         }
     }
 
     // Update is called once per frame
     private void Update()
     {
+        for (var i = 0; i < points.Length; i++)
+        {
+            var point = points[i];
+
+            var position = point.localPosition;
+            position.y = Mathf.Sin(Mathf.PI * (position.x + Time.time));
+
+            point.localPosition = position;
+        }
     }
 }
